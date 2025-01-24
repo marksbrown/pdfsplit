@@ -1,0 +1,5 @@
+SELECT tag, COUNT(*) 
+FROM pagetags 
+GROUP BY tag
+ORDER BY COUNT(*)
+DESC;

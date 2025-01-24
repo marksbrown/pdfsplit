@@ -1,0 +1,16 @@
+?start: cmd ("\n" cmd)*
+cmd: sequences ":" tags
+  | "#" var "=" tag
+?sequences: sequence ("," sequence)*
+tags: tag ("," tag)*
+?sequence: INT
+        | INT "-" INT -> range
+?tag: ESCAPED_STRING
+?var: WORD
+
+%import common.ESCAPED_STRING
+%import common.WORD -> WORD
+%import common.INT -> INT
+
+%import common.WS -> WS
+%ignore WS

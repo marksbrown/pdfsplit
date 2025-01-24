@@ -1,0 +1,5 @@
+env/
+*.json
+*.db
+*.log
+*__py*
