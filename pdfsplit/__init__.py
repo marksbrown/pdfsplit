@@ -10,3 +10,5 @@ from .utils import (
 from .parser import parse_code
 from .database import create_empty_db, populate_db
 from .splitter import pdf_to_base64
+
+from .api import app
