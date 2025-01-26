@@ -5,6 +5,7 @@ from .utils import (
     list_code,
     load_code,
     create_empty_code,
+    fetch_metadata,
 )
 from .parser import parse_code
 from .database import create_empty_db, populate_db

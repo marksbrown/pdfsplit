@@ -6,6 +6,13 @@ import json
 dl: TypeAlias = dict[str, list[str]]
 
 
+def fetch_metadata(fn="metadata.json"):
+    with open(fn, "r") as f:
+        metadata = json.load(f)
+
+    return metadata
+
+
 def reverse_dict(dict_: dl):
     reversed_ = {}
     for tag in dict_:

@@ -1,6 +1,7 @@
 import sqlite3
 from pathlib import Path
 import os
+import json
 
 import pdfsplit as psp
 
@@ -26,10 +27,16 @@ def create_empty_db(db_loc: str) -> None:
     con.close()
 
 
-def populate_db(db_loc: str, uri: str, pages, tags):
+def populate_db(db_loc: str, uri: str, pages, tags, metadata=None):
     con = sqlite3.connect(db_loc)
     # insert data into db
-    con.execute("INSERT or REPLACE into pdfs VALUES(?)", (uri,))
+    if metadata is None:
+        con.execute("INSERT or REPLACE into pdfs VALUES(?)", (uri,))
+    else:
+        con.execute(
+            "INSERT or REPLACE into pdfs VALUES(?, ?)", (uri, json.dumps(metadata))
+        )
+
     con.commit()
     for pnum, image in pages:
         page_tags = tags.get(int(pnum), None)

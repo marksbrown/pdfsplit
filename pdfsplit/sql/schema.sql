@@ -1,9 +1,6 @@
 BEGIN TRANSACTION;
-CREATE TABLE IF NOT EXISTS "tags" (
-	"tag"	TEXT NOT NULL UNIQUE,
-	PRIMARY KEY("tag")
-);
-CREATE TABLE IF NOT EXISTS "Pages" (
+
+CREATE TABLE IF NOT EXISTS "pages" (
 	"id"	TEXT NOT NULL,
 	"page"	INTEGER,
 	"png"	BLOB NOT NULL,
@@ -12,15 +9,21 @@ CREATE TABLE IF NOT EXISTS "Pages" (
 );
 CREATE TABLE IF NOT EXISTS "pdfs" (
 	"id"	TEXT NOT NULL UNIQUE,
+  "metadata" TEXT,
 	PRIMARY KEY("id")
 );
-CREATE TABLE IF NOT EXISTS "PageTags" (
+CREATE TABLE IF NOT EXISTS "pagetags" (
 	"tag"	TEXT,
 	"id"	TEXT,
 	"page"	INTEGER,
-	FOREIGN KEY("page") REFERENCES "Pages"("page"),
-	PRIMARY KEY("tag","id","page"),
-	FOREIGN KEY("id") REFERENCES "Pages"("id"),
-	FOREIGN KEY("tag") REFERENCES "tags"("tag")
+	FOREIGN KEY("page") REFERENCES "pages"("page"),
+	FOREIGN KEY("id") REFERENCES "pages"("id"),
+	PRIMARY KEY("tag","id","page")
 );
 COMMIT;
+CREATE VIEW if not exists tags(tag, count)
+as SELECT tag, COUNT(*) 
+FROM pagetags 
+GROUP BY tag
+ORDER BY COUNT(*)
+DESC

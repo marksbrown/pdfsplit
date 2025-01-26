@@ -50,11 +50,24 @@ def prepare_to(pdf_loc: str, dsl_loc: str, db_loc: str) -> None:
 
 
 @app.command()
-def populate(pdf_loc: str, dsl_loc: str, db_loc: str) -> None:
+def populate(
+    pdf_loc: str, dsl_loc: str, db_loc: str, meta_loc: str, overwrite: bool = False
+) -> None:
     """
     Populate sqlite3 database
     """
+    db_loc = Path(db_loc)
+    if overwrite and db_loc.exists():
+        db_loc.unlink()
+    else:
+        if db_loc.exists():
+            to_stdout(f"{db_path} already exists!", "error")
+            raise typer.Exit(1)
+
     prepare_to(pdf_loc, dsl_loc, db_loc)
+
+    if meta_loc is not None:
+        metadata = psp.fetch_metadata(meta_loc)
 
     for ploc, dloc in psp.list_matched(pdf_loc, dsl_loc):
         try:
@@ -71,7 +84,12 @@ def populate(pdf_loc: str, dsl_loc: str, db_loc: str) -> None:
         if data is None:  # no data produced for this file
             to_stdout(f"No data produced from {fn}", kind="warning")
             continue
-        psp.populate_db(db_loc, str(ploc), data, tags)
+        if meta_loc is None:
+            md = None
+        else:
+            md = metadata[Path(ploc).stem]
+
+        psp.populate_db(db_loc, str(ploc), data, tags, md)
         to_stdout(f"{ploc.name} successfully loaded", "success")
 
 
