@@ -57,11 +57,8 @@ def populate(
     meta_loc: Optional[str] = "metadata.json",
     overwrite: Optional[bool] = False,
 ) -> None:
-    """
-    Populate sqlite3 database
-    """
-    if not overwrite and db_loc.exists():
-        to_stdout(f"{db_path} already exists!", "error")
+    if not overwrite and Path(db_loc).exists():
+        to_stdout(f"{db_loc} already exists! Did you mean to overwrite?", "error")
         raise typer.Exit(1)
 
     _prepare(pdf_loc, dsl_loc, db_loc, overwrite)
