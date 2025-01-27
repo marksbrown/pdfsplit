@@ -1,8 +1,9 @@
-import typer
 from pathlib import Path
 import logging
-from lark import UnexpectedEOF, UnexpectedCharacters
+from typing import Optional
 
+import typer
+from lark import UnexpectedEOF, UnexpectedCharacters
 import pdfsplit as psp
 
 logger = logging.getLogger("pdfsplit")
@@ -37,34 +38,33 @@ def to_stdout(prompt: str, kind: str = "info"):
     typer.echo(_to_style(prompt, kind))
 
 
-@app.command()
-def list_unparsed(pdf_loc: str, dsl_loc: str) -> None:
-    return psp.list_unparsed(dsl_loc)
-
-
-@app.command()
-def prepare_to(pdf_loc: str, dsl_loc: str, db_loc: str) -> None:
+def _prepare(
+    pdf_loc: Optional[str] = "pdfs",
+    dsl_loc: Optional[str] = "parsers",
+    db_loc: Optional[str] = "output.db",
+    overwrite: Optional[bool] = False,
+) -> None:
     psp.create_empty_code(dsl_loc, psp.list_pdfs(pdf_loc))
-    psp.create_empty_db(db_loc)
+    psp.create_empty_db(db_loc, overwrite)
     to_stdout("Successfully prepared!", "success")
 
 
 @app.command()
 def populate(
-    pdf_loc: str, dsl_loc: str, db_loc: str, meta_loc: str, overwrite: bool = False
+    pdf_loc: Optional[str] = "pdfs",
+    dsl_loc: Optional[str] = "parsers",
+    db_loc: Optional[str] = "output.db",
+    meta_loc: Optional[str] = "metadata.json",
+    overwrite: Optional[bool] = False,
 ) -> None:
     """
     Populate sqlite3 database
     """
-    db_loc = Path(db_loc)
-    if overwrite and db_loc.exists():
-        db_loc.unlink()
-    else:
-        if db_loc.exists():
-            to_stdout(f"{db_path} already exists!", "error")
-            raise typer.Exit(1)
+    if not overwrite and db_loc.exists():
+        to_stdout(f"{db_path} already exists!", "error")
+        raise typer.Exit(1)
 
-    prepare_to(pdf_loc, dsl_loc, db_loc)
+    _prepare(pdf_loc, dsl_loc, db_loc, overwrite)
 
     if meta_loc is not None:
         metadata = psp.fetch_metadata(meta_loc)

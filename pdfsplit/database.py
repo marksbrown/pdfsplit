@@ -16,7 +16,11 @@ def load_sql(cmd):
         yield sql_file
 
 
-def create_empty_db(db_loc: str) -> None:
+def create_empty_db(db_loc: str, overwrite: bool = False) -> None:
+    if overwrite and Path(db_loc).exists():
+        psp.to_stdout(f"Overwriting existing database at {db_loc}!", kind="warning")
+        Path(db_loc).unlink()
+
     con = sqlite3.connect(db_loc)
 
     sql_commands = load_sql("sql/schema.sql")
